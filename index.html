@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelf Tag Designer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Shelf Tag Designer</h1>
+            <div class="header-actions">
+                <button id="saveTemplateBtn" class="btn btn-primary">Save Template</button>
+                <button id="saveToDiskBtn" class="btn btn-primary">Save to Disk</button>
+                <button id="loadTemplateBtn" class="btn btn-secondary">Load Template</button>
+                <button id="loadFromDiskBtn" class="btn btn-secondary">Load from Disk</button>
+                <button id="switchModeBtn" class="btn btn-secondary">Switch to Designer Mode</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Designer Mode -->
+            <div id="designerMode" class="mode-panel">
+                <div class="designer-layout">
+                    <!-- Left Sidebar - Tools -->
+                    <aside class="sidebar">
+                        <div class="sidebar-section">
+                            <h3>Add Elements</h3>
+                            <button class="add-element-btn" data-type="text">Add Text</button>
+                            <button class="add-element-btn" data-type="variable">Add Variable</button>
+                            <button class="add-element-btn" data-type="barcode">Add Barcode</button>
+                            <button class="add-element-btn" data-type="rectangle">Add Rectangle</button>
+                            <button class="add-element-btn" data-type="line">Add Line</button>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Variables</h3>
+                            <select id="variableSelect" class="variable-select">
+                                <option value="">Select a variable...</option>
+                                <option value="{{Title}}">Title</option>
+                                <option value="{{Price}}">Price</option>
+                                <option value="{{SKU}}">SKU</option>
+                                <option value="{{UPC}}">UPC</option>
+                                <option value="{{Category}}">Category</option>
+                                <option value="{{Tags}}">Tags</option>
+                                <option value="{{Size}}">Size</option>
+                                <option value="{{Vintage}}">Vintage</option>
+                                <option value="{{Distributor}}">Distributor</option>
+                                <option value="{{In Stock}}">In Stock</option>
+                                <option value="{{Unit Cost}}">Unit Cost</option>
+                                <option value="{{Case Cost}}">Case Cost</option>
+                            </select>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Custom Fonts</h3>
+                            <input type="file" id="fontUpload" accept=".otf,.ttf,.woff,.woff2" style="display: none;">
+                            <button id="uploadFontBtn" class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;">Upload Font</button>
+                            <div id="customFontsList" class="custom-fonts-list">
+                                <!-- Custom fonts will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Properties</h3>
+                            <div id="propertiesPanel" class="properties-panel">
+                                <p class="no-selection">Select an element to edit properties</p>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Canvas Area -->
+                    <div class="canvas-container">
+                        <div class="canvas-toolbar">
+                            <label>Tag Size (mm):</label>
+                            <input type="number" id="tagWidth" value="80" min="20" max="200"> x
+                            <input type="number" id="tagHeight" value="50" min="20" max="200">
+                            <button id="updateSizeBtn" class="btn btn-small">Update</button>
+                            <button id="previewBtn" class="btn btn-primary btn-small">Preview</button>
+                            <button id="clearCanvasBtn" class="btn btn-danger btn-small">Clear</button>
+                        </div>
+                        <div id="canvas" class="canvas" style="width: 80mm; height: 50mm;">
+                            <!-- Elements will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Preview Panel -->
+                    <aside class="preview-sidebar" id="previewSidebar">
+                        <h3>Preview</h3>
+                        <div id="previewCanvas" class="preview-canvas" style="width: 80mm; height: 50mm;">
+                            <!-- Preview will be rendered here -->
+                        </div>
+                        <div class="preview-controls">
+                            <label>Test Product:</label>
+                            <select id="previewProductSelect" class="preview-select">
+                                <option value="">Loading...</option>
+                            </select>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <!-- Print Mode -->
+            <div id="printMode" class="mode-panel active">
+                <div class="print-layout">
+                    <div class="print-left">
+                        <div class="search-section">
+                            <h2>Product Lookup</h2>
+                            <div class="search-controls">
+                                <input type="text" id="productSearch" placeholder="Search by Title, SKU, UPC, or Category..." class="search-input">
+                                <button id="searchBtn" class="btn btn-primary">Search</button>
+                                <button id="clearSearchBtn" class="btn btn-secondary">Clear</button>
+                            </div>
+                            <div id="searchResults" class="search-results">
+                                <!-- Search results will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="print-right">
+                        <div class="selected-products-section">
+                            
+                            <div id="selectedProducts" class="selected-products">
+                                <p class="empty-message">No products selected. Search and select products to print tags.</p>
+                            </div>
+                        </div>
+                        <div class="print-actions">
+                            <div class="print-buttons">
+                                <button id="printSelectedBtn" class="btn btn-primary" disabled>Print Selected Tags</button>
+                                <button id="clearSelectedBtn" class="btn btn-secondary" disabled>Clear Selection</button>
+                            </div>
+                            <div class="printer-config-section">
+                                <h3>Printer Settings</h3>
+                                <div class="printer-option">
+                                    <label>
+                                        <input type="radio" name="printMethod" value="epson" checked>
+                                        Direct Epson Printer (ePOS SDK)
+                                    </label>
+                                </div>
+                                <div class="printer-option">
+                                    <label>
+                                        <input type="radio" name="printMethod" value="browser">
+                                        Browser Print Dialog
+                                    </label>
+                                </div>
+                                <div id="epsonConfig" class="epson-config">
+                                    <label>Printer:</label>
+                                    <div class="printer-option">
+                                        <label>
+                                            <input type="radio" name="printerIP" value="192.168.1.249" checked>
+                                            Left (192.168.1.249)
+                                        </label>
+                                    </div>
+                                    <div class="printer-option">
+                                        <label>
+                                            <input type="radio" name="printerIP" value="192.168.1.24">
+                                            Right (192.168.1.24)
+                                        </label>
+                                    </div>
+                                    <label style="margin-top: 0.5rem; display: block;">Printer Name (optional - will auto-detect if left blank):</label>
+                                    <!--<input type="text" id="printerName" placeholder="Leave blank to auto-detect" value="local_printer" class="printer-input">
+                                    <small style="display: block; color: #666; margin-top: 0.25rem; margin-bottom: 0.5rem;">If auto-detection fails, try common names like "epos_printer" (default), "local_printer", "TM-m30II-H", or check your printer's web interface for the exact device name.</small>-->
+                                    <label class="printer-option" style="margin-top: 0.5rem;">
+                                        <input type="checkbox" id="fastPrintMode">
+                                        Faster print (lower resolution, fewer dots)
+                                    </label>
+                                    <!--<button id="testConnectionBtn" class="btn btn-small">Test Connection</button>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Name Modal -->
+    <div id="templateModal" class="modal">
+        <div class="modal-content">
+            <h3>Save Template</h3>
+            <input type="text" id="templateName" placeholder="Enter template name..." class="template-input">
+            <div class="modal-actions">
+                <button id="confirmSaveBtn" class="btn btn-primary">Save</button>
+                <button id="cancelSaveBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Template Modal -->
+    <div id="loadTemplateModal" class="modal">
+        <div class="modal-content">
+            <h3>Load Template</h3>
+            <div id="templateList" class="template-list">
+                <!-- Templates will be listed here -->
+            </div>
+            <div class="modal-actions">
+                <button id="cancelLoadBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Epson ePOS SDK -->
+    <script src="epos-2.27.0.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
