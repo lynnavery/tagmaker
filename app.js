@@ -14,6 +14,7 @@ let resizeHandle = null;
 let elementIdCounter = 0;
 let selectedProducts = [];
 let productCopies = {};
+let searchHighlightedIndex = -1;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,16 +74,34 @@ function initializeDesigner() {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Mode switching
-    document.getElementById('switchModeBtn').addEventListener('click', switchMode);
+    // Header File dropdown
+    const headerMenuBtn = document.getElementById('headerMenuBtn');
+    const headerDropdownMenu = document.getElementById('headerDropdownMenu');
+    if (headerMenuBtn && headerDropdownMenu) {
+        headerMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = headerDropdownMenu.classList.toggle('open');
+            headerMenuBtn.setAttribute('aria-expanded', open);
+        });
+        document.addEventListener('click', () => {
+            headerDropdownMenu.classList.remove('open');
+            headerMenuBtn.setAttribute('aria-expanded', 'false');
+        });
+        headerDropdownMenu.addEventListener('click', (e) => {
+            const item = e.target.closest('.dropdown-item');
+            if (!item) return;
+            const action = item.dataset.action;
+            headerDropdownMenu.classList.remove('open');
+            headerMenuBtn.setAttribute('aria-expanded', 'false');
+            if (action === 'saveTemplate') showSaveModal();
+            else if (action === 'saveToDisk') saveTemplateToDisk();
+            else if (action === 'loadTemplate') showLoadModal();
+            else if (action === 'loadFromDisk') document.getElementById('templateFileInput').click();
+            else if (action === 'switchMode') switchMode();
+        });
+    }
     
-    // Template management
-    document.getElementById('saveTemplateBtn').addEventListener('click', showSaveModal);
-    document.getElementById('saveToDiskBtn').addEventListener('click', saveTemplateToDisk);
-    document.getElementById('loadTemplateBtn').addEventListener('click', showLoadModal);
-    document.getElementById('loadFromDiskBtn').addEventListener('click', () => {
-        document.getElementById('templateFileInput').click();
-    });
+    // Template management (modals / file input still used by dropdown)
     document.getElementById('confirmSaveBtn').addEventListener('click', saveTemplate);
     document.getElementById('cancelSaveBtn').addEventListener('click', hideSaveModal);
     document.getElementById('cancelLoadBtn').addEventListener('click', hideLoadModal);
@@ -122,6 +141,36 @@ function setupEventListeners() {
     document.getElementById('productSearch').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') performSearch();
     });
+    document.getElementById('productSearch').addEventListener('keydown', (e) => {
+        const resultsDiv = document.getElementById('searchResults');
+        const items = resultsDiv ? resultsDiv.querySelectorAll('.search-result-item') : [];
+        const n = items.length;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (n === 0) return;
+            searchHighlightedIndex = searchHighlightedIndex < n - 1 ? searchHighlightedIndex + 1 : 0;
+            updateSearchHighlight();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (n === 0) return;
+            searchHighlightedIndex = searchHighlightedIndex <= 0 ? n - 1 : searchHighlightedIndex - 1;
+            updateSearchHighlight();
+        } else if (e.key === 'Enter') {
+            if (n > 0 && searchHighlightedIndex >= 0 && items[searchHighlightedIndex]) {
+                e.preventDefault();
+                const productId = items[searchHighlightedIndex].dataset.id;
+                if (productId) addProductToSelection(productId);
+            } else {
+                e.preventDefault();
+                e.target.focus();
+            }
+        }
+    });
+    let searchDebounceTimer;
+    document.getElementById('productSearch').addEventListener('input', () => {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(performSearch, 200);
+    });
     document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
     const printSelectedBtn = document.getElementById('printSelectedBtn');
     if (printSelectedBtn) {
@@ -138,6 +187,12 @@ function setupEventListeners() {
     } else {
         console.warn('printSelectedBtn not found');
     }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            const btn = document.getElementById('printSelectedBtn');
+            if (btn && !btn.disabled) btn.click();
+        }
+    });
     document.getElementById('clearSelectedBtn').addEventListener('click', clearSelectedProducts);
 
     // Printer method selection
@@ -149,6 +204,7 @@ function setupEventListeners() {
             } else {
                 epsonConfig.style.display = 'none';
             }
+            updatePrinterSettingsSummary();
         });
     });
     
@@ -156,8 +212,12 @@ function setupEventListeners() {
     document.querySelectorAll('input[name="printerIP"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             savePrinterPreference(e.target.value);
+            updatePrinterSettingsSummary();
         });
     });
+    
+    document.getElementById('fastPrintMode')?.addEventListener('change', updatePrinterSettingsSummary);
+    updatePrinterSettingsSummary();
     
     // Test Epson connection
     const testConnectionBtn = document.getElementById('testConnectionBtn');
@@ -1546,16 +1606,16 @@ function loadTemplateToCanvas() {
 function switchMode() {
     const designerMode = document.getElementById('designerMode');
     const printMode = document.getElementById('printMode');
-    const switchBtn = document.getElementById('switchModeBtn');
+    const switchLabel = document.getElementById('headerMenuSwitchMode');
     
     if (designerMode.classList.contains('active')) {
         designerMode.classList.remove('active');
         printMode.classList.add('active');
-        switchBtn.textContent = 'Switch to Designer Mode';
+        if (switchLabel) switchLabel.textContent = 'Switch to Designer Mode';
     } else {
         printMode.classList.remove('active');
         designerMode.classList.add('active');
-        switchBtn.textContent = 'Switch to Print Mode';
+        if (switchLabel) switchLabel.textContent = 'Switch to Print Mode';
     }
 }
 
@@ -1592,6 +1652,42 @@ function loadPrinterPreference() {
     }
 }
 
+// Update the one-line printer settings summary (when view is "Summary")
+function updatePrinterSettingsSummary() {
+    const el = document.getElementById('printerSettingsSummary');
+    if (!el) return;
+    const printMethodRadio = document.querySelector('input[name="printMethod"]:checked');
+    const printerIPRadio = document.querySelector('input[name="printerIP"]:checked');
+    const fastPrint = document.getElementById('fastPrintMode');
+    if (!printMethodRadio) {
+        el.textContent = '';
+        return;
+    }
+    if (printMethodRadio.value === 'browser') {
+        el.textContent = 'Browser Print Dialog';
+        return;
+    }
+    const parts = ['Epson'];
+    if (printerIPRadio) {
+        const label = printerIPRadio.closest('label');
+        parts.push(label ? label.textContent.replace(/\s+/g, ' ').trim() : printerIPRadio.value);
+    }
+    if (fastPrint && fastPrint.checked) parts.push('(fast print)');
+    el.textContent = parts.join(' · ');
+}
+
+// Update keyboard highlight in search results and scroll into view
+function updateSearchHighlight() {
+    const resultsDiv = document.getElementById('searchResults');
+    const items = resultsDiv ? resultsDiv.querySelectorAll('.search-result-item') : [];
+    items.forEach((item, i) => {
+        item.classList.toggle('highlighted', i === searchHighlightedIndex);
+    });
+    if (searchHighlightedIndex >= 0 && items[searchHighlightedIndex]) {
+        items[searchHighlightedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+}
+
 // Perform search
 function performSearch() {
     const query = document.getElementById('productSearch').value.toLowerCase().trim();
@@ -1599,6 +1695,7 @@ function performSearch() {
     
     if (!query) {
         resultsDiv.innerHTML = '<p style="padding: 1rem; color: #95a5a6; text-align: center;">Enter a search term</p>';
+        searchHighlightedIndex = -1;
         return;
     }
     
@@ -1613,6 +1710,7 @@ function performSearch() {
     
     if (results.length === 0) {
         resultsDiv.innerHTML = '<p style="padding: 1rem; color: #95a5a6; text-align: center;">No products found</p>';
+        searchHighlightedIndex = -1;
         return;
     }
     
@@ -1627,6 +1725,9 @@ function performSearch() {
         </div>
     `).join('');
     
+    searchHighlightedIndex = 0;
+    updateSearchHighlight();
+    
     // Add click handlers
     resultsDiv.querySelectorAll('.search-result-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -1636,14 +1737,17 @@ function performSearch() {
     });
 }
 
-// Add product to selection
+// Add product to selection (repeated clicks increase copies)
 function addProductToSelection(productId) {
     const product = products.find(p => p.publicId === productId);
-    if (!product || selectedProducts.find(p => p.publicId === productId)) {
-        return;
+    if (!product) return;
+    const existing = selectedProducts.find(p => p.publicId === productId);
+    if (existing) {
+        productCopies[productId] = Math.min(99, (productCopies[productId] || 1) + 1);
+    } else {
+        selectedProducts.push(product);
+        productCopies[productId] = 1;
     }
-    selectedProducts.push(product);
-    productCopies[productId] = 1;
     updateSelectedProductsList();
 }
 
@@ -1719,11 +1823,9 @@ function clearSearch() {
 
 // Clear selected products
 function clearSelectedProducts() {
-    if (confirm('Clear all selected products?')) {
-        selectedProducts = [];
-        productCopies = {};
-        updateSelectedProductsList();
-    }
+    selectedProducts = [];
+    productCopies = {};
+    updateSelectedProductsList();
 }
 
 // Print selected tags
@@ -2466,13 +2568,14 @@ function renderTagToCanvas(template, product, opts) {
         return Promise.reject(new Error('html2canvas not loaded.'));
     }
     opts = opts || {};
-    var dotsPerMm = (opts.fastPrint === true) ? 6 : PRINTER_DOTS_PER_MM;
     var wMm = template.width || 80;
     var hMm = template.height || 50;
     var designW = Math.round(wMm * DESIGN_PX_PER_MM);
     var designH = Math.round(hMm * DESIGN_PX_PER_MM);
-    var outW = Math.floor(wMm * dotsPerMm);
-    var outH = Math.floor(hMm * dotsPerMm);
+    // Always use full printer resolution (8 dots/mm) for output so physical size is correct.
+    // Fast print stays faster via scale:1 and shorter delays; we no longer shrink the sent image.
+    var outW = Math.floor(wMm * PRINTER_DOTS_PER_MM);
+    var outH = Math.floor(hMm * PRINTER_DOTS_PER_MM);
     var outWidth = Math.max(8, Math.floor(outW / 8) * 8);
     var outHeight = Math.max(1, outH);
 
