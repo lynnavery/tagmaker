@@ -1652,11 +1652,11 @@ function updateSelectedProductsList() {
     const container = document.getElementById('selectedProducts');
     const printBtn = document.getElementById('printSelectedBtn');
     const clearBtn = document.getElementById('clearSelectedBtn');
-    
+    if (!container) return;
     if (selectedProducts.length === 0) {
         container.innerHTML = '<p class="empty-message">No products selected. Search and select products to print tags.</p>';
-        printBtn.disabled = true;
-        clearBtn.disabled = true;
+        if (printBtn) printBtn.disabled = true;
+        if (clearBtn) clearBtn.disabled = true;
         return;
     }
     
@@ -1679,8 +1679,8 @@ function updateSelectedProductsList() {
         </div>`;
     }).join('');
     
-    printBtn.disabled = false;
-    clearBtn.disabled = false;
+    if (printBtn) printBtn.disabled = false;
+    if (clearBtn) clearBtn.disabled = false;
     
     container.querySelectorAll('.remove-product-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -2053,7 +2053,7 @@ async function printToEpson(template, productsToPrint) {
         }
         console.log(`Will try device names in order:`, namesToTry);
 
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 150));
 
         let printer = null;
         let deviceName = null;
@@ -2098,10 +2098,15 @@ async function printToEpson(template, productsToPrint) {
             console.warn('Raster preview failed, falling back to text:', e.message);
         }
 
+        // When 5+ tags are queued, some Epson printers drop the last cut if we send all in one batch.
+        // Send each tag (and its cut) in its own send() so the last tag always cuts.
+        var BATCH_CUT_THRESHOLD = 5;
+        var sendPerTag = toPrint.length >= BATCH_CUT_THRESHOLD;
+
         if (usedRaster) {
             try {
-                var canvases = [];
-                for (var i = 0; i < toPrint.length; i++) {
+                var canvases = [canvas];
+                for (var i = 1; i < toPrint.length; i++) {
                     var can = await renderTagToCanvas(template, toPrint[i], { fastPrint: fastPrint });
                     canvases.push(can);
                 }
@@ -2111,9 +2116,17 @@ async function printToEpson(template, productsToPrint) {
                     var ctx = c.getContext('2d');
                     printer.addImage(ctx, 0, 0, c.width, c.height, printer.COLOR_1, printer.MODE_MONO);
                     printer.addCut(printer.CUT_NO_FEED);
+                    if (sendPerTag) {
+                        printer.send();
+                        if (k < canvases.length - 1) {
+                            await new Promise(function (r) { setTimeout(r, 150); });
+                        }
+                    }
                 }
-                printer.send();
-                await new Promise(function (r) { setTimeout(r, 800); });
+                if (!sendPerTag) {
+                    printer.send();
+                }
+                await new Promise(function (r) { setTimeout(r, 400); });
                 ePosDev.disconnect();
             } catch (err) {
                 console.error('Print error:', err);
@@ -2129,9 +2142,17 @@ async function printToEpson(template, productsToPrint) {
                     printer.addTextStyle(false, false, false, printer.COLOR_1);
                     template.elements.forEach(function (el) { renderEpsonElement(printer, el, p); });
                     printer.addCut(printer.CUT_NO_FEED);
+                    if (sendPerTag) {
+                        printer.send();
+                        if (j < toPrint.length - 1) {
+                            await new Promise(function (r) { setTimeout(r, 150); });
+                        }
+                    }
                 }
-                printer.send();
-                await new Promise(function (r) { setTimeout(r, 800); });
+                if (!sendPerTag) {
+                    printer.send();
+                }
+                await new Promise(function (r) { setTimeout(r, 400); });
                 ePosDev.disconnect();
             } catch (err) {
                 console.error('Print error:', err);
@@ -2470,7 +2491,7 @@ function renderTagToCanvas(template, product, opts) {
             if (!el) { cleanup(); reject(new Error('Raster: .print-tag not found')); return; }
             setTimeout(function () {
                 html2canvas(el, {
-                    scale: 2,
+                    scale: 1,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
@@ -2494,7 +2515,7 @@ function renderTagToCanvas(template, product, opts) {
                 }).catch(function (err) {
                     reject(new Error('Raster render failed: ' + (err && err.message ? err.message : String(err))));
                 }).finally(cleanup);
-            }, 250);
+            }, 50);
         };
         iframe.onerror = function () { cleanup(); reject(new Error('Raster iframe load failed')); };
         doc.open();
