@@ -58,5 +58,9 @@ In Sante’s settings, set the “Products CSV” notification email to the Gmai
 - **"No CSV URL found"**  
   The email body may have changed. Check **View → Logs** after a run; you can temporarily log `msg.getBody()` to inspect the HTML.
 
-- **Webhook returns 4xx/5xx**  
-  Check your backend URL and, if you use it, that `WEBHOOK_SECRET` matches the backend. In **Executions**, open the run and check for errors.
+- **"Failed to POST to webhook: HTTP …"**  
+  The script now logs the exact status and response body. In **Executions** (left sidebar), open the latest run and expand the log to see it.  
+  - **401**: `WEBHOOK_SECRET` in Script Properties does not match `WEBHOOK_SECRET` on the server (or you don’t have a secret on one side).  
+  - **400**: Server didn’t get a valid `csv_url` (unlikely if the email was parsed).  
+  - **500**: Server error—often `GITHUB_TOKEN and GITHUB_REPO not configured` (set env vars on the DO Web Service), or a GitHub API error (check token scope and repo name).  
+  - **Connection/URL error**: Check that `WEBHOOK_URL` is correct and the CSV service is deployed and running.

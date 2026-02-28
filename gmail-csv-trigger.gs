@@ -31,11 +31,11 @@ function checkSanteCsvAndNotify() {
     return;
   }
 
-  var success = postCsvUrlToWebhook(webhookUrl, csvUrl);
-  if (success) {
+  var result = postCsvUrlToWebhook(webhookUrl, csvUrl);
+  if (result.success) {
     Logger.log('Sent CSV URL to webhook: ' + csvUrl);
   } else {
-    Logger.log('Failed to POST to webhook.');
+    Logger.log('Failed to POST to webhook: ' + result.error);
   }
 }
 
@@ -71,8 +71,18 @@ function postCsvUrlToWebhook(webhookUrl, csvUrl) {
   if (secret) {
     options.headers = { 'Authorization': 'Bearer ' + secret };
   }
-  var resp = UrlFetchApp.fetch(webhookUrl, options);
-  return resp.getResponseCode() >= 200 && resp.getResponseCode() < 300;
+  try {
+    var resp = UrlFetchApp.fetch(webhookUrl, options);
+    var code = resp.getResponseCode();
+    if (code >= 200 && code < 300) {
+      return { success: true };
+    }
+    var body = resp.getContentText();
+    var errMsg = 'HTTP ' + code + (body ? ': ' + body : '');
+    return { success: false, error: errMsg };
+  } catch (e) {
+    return { success: false, error: e.toString() };
+  }
 }
 
 /**

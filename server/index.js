@@ -10,6 +10,8 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || '';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || ''; // owner/repo
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
+// When the app is behind a path (e.g. DO routing rule /tagmaker-server -> this service), set BASE_PATH=/tagmaker-server
+const BASE_PATH = (process.env.BASE_PATH || '').replace(/\/$/, '');
 
 app.use(express.json());
 
@@ -77,13 +79,8 @@ async function pushCsvToGitHub(csvBuffer) {
   });
 }
 
-// Health check for DO App Platform
-app.get('/health', (req, res) => {
-  res.status(200).send('ok');
-});
-
-// Webhook: receive csv_url from Gmail Apps Script, download and push to GitHub
-app.post('/webhook', async (req, res) => {
+// Route handler for webhook (shared for root and BASE_PATH)
+async function handleWebhook(req, res) {
   if (WEBHOOK_SECRET) {
     const auth = req.headers.authorization;
     const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : '';
@@ -113,7 +110,15 @@ app.post('/webhook', async (req, res) => {
     console.error('Webhook error:', err);
     res.status(500).json({ error: err.message || 'Failed to download or push CSV' });
   }
-});
+}
+
+// Health and webhook: at root (direct URL) and under BASE_PATH (routing rule)
+app.get('/health', (req, res) => res.status(200).send('ok'));
+app.post('/webhook', handleWebhook);
+if (BASE_PATH) {
+  app.get(BASE_PATH + '/health', (req, res) => res.status(200).send('ok'));
+  app.post(BASE_PATH + '/webhook', handleWebhook);
+}
 
 app.listen(PORT, () => {
   console.log(`Tagmaker CSV service listening on port ${PORT}; pushes to GitHub repo: ${GITHUB_REPO || '(not set)'}`);

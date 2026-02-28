@@ -35,17 +35,21 @@ In the Web Service component, add:
 | `GITHUB_REPO` | Your repo as `owner/repo` (e.g. `myuser/tagmaker`) |
 | `GITHUB_BRANCH` | (optional) Branch to update. Default: `main` |
 | `WEBHOOK_SECRET` | (optional) Same secret you set in Gmail Apps Script |
+| `BASE_PATH` | (optional) If a routing rule forwards a path to this service (e.g. `/tagmaker-server`), set it here so `/tagmaker-server/webhook` works |
 
 Use the same GitHub account (or a machine user) that owns the repo so the push is allowed.
 
 ## 4. Deploy and get the webhook URL
 
-Deploy the app. The Web Service gets a URL like:
+Deploy the app. Your app has one public URL (e.g. `https://stingray-app-297x4.ondigitalocean.app`). The webhook URL depends on **routing**:
 
-`https://your-app-csv-xxxxx.ondigitalocean.app`
+- **If the CSV service has its own component URL** (no path routing):  
+  `https://<component-url>.ondigitalocean.app/webhook`
+- **If you use a routing rule** (e.g. path `/tagmaker-server` → CSV service): use the **full path** on the app URL:  
+  `https://stingray-app-297x4.ondigitalocean.app/tagmaker-server/webhook`  
+  Set env var **BASE_PATH** on the Web Service to `/tagmaker-server` so the server answers on that path.
 
-**WEBHOOK_URL** for Gmail Apps Script:  
-`https://your-app-csv-xxxxx.ondigitalocean.app/webhook`
+**WEBHOOK_URL** in Gmail Apps Script = the URL you use above.
 
 ## 5. Gmail Apps Script
 
