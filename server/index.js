@@ -1,26 +1,17 @@
 const express = require('express');
-const path = require('path');
 const https = require('https');
 const http = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Use DATA_DIR=/data on DO (volume mount); default ./data for local dev
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
-const CSV_PATH = path.join(DATA_DIR, 'products.csv');
-
 const SANTE_CSV_PREFIX = 'https://sante.nyc3.digitaloceanspaces.com/products-export/';
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || '';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || ''; // owner/repo
+const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 
 app.use(express.json());
-
-function ensureDataDir() {
-  const fs = require('fs');
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
 
 function isValidCsvUrl(url) {
   if (!url || typeof url !== 'string') return false;
@@ -44,12 +35,54 @@ function downloadCsv(url) {
   });
 }
 
+function githubApi(method, path, body) {
+  const [owner, repo] = GITHUB_REPO.split('/');
+  if (!owner || !repo) return Promise.reject(new Error('GITHUB_REPO not set'));
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  const opts = {
+    method,
+    headers: {
+      Accept: 'application/vnd.github.v3+json',
+      Authorization: `token ${GITHUB_TOKEN}`,
+      'User-Agent': 'tagmaker-csv-service'
+    }
+  };
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  return fetch(url + (GITHUB_BRANCH ? `?ref=${GITHUB_BRANCH}` : ''), opts).then((r) => {
+    if (!r.ok) return r.json().then((j) => Promise.reject(new Error(j.message || `GitHub API ${r.status}`)));
+    return r.json();
+  });
+}
+
+async function pushCsvToGitHub(csvBuffer) {
+  const path = 'products.csv';
+  const content = csvBuffer.toString('base64');
+  let sha = null;
+  try {
+    const existing = await githubApi('GET', path);
+    sha = existing.sha;
+  } catch (e) {
+    if (e.message && (e.message.includes('404') || e.message.includes('Not Found'))) {
+      // file doesn't exist yet, create it
+    } else throw e;
+  }
+  await githubApi('PUT', path, {
+    message: 'Update products.csv from Sante',
+    content,
+    branch: GITHUB_BRANCH,
+    ...(sha ? { sha } : {})
+  });
+}
+
 // Health check for DO App Platform
 app.get('/health', (req, res) => {
   res.status(200).send('ok');
 });
 
-// Webhook: receive csv_url from Gmail Apps Script, download and save
+// Webhook: receive csv_url from Gmail Apps Script, download and push to GitHub
 app.post('/webhook', async (req, res) => {
   if (WEBHOOK_SECRET) {
     const auth = req.headers.authorization;
@@ -66,31 +99,22 @@ app.post('/webhook', async (req, res) => {
     return;
   }
 
-  try {
-    ensureDataDir();
-    const buffer = await downloadCsv(csvUrl);
-    const fs = require('fs');
-    fs.writeFileSync(CSV_PATH, buffer);
-    res.status(200).json({ ok: true, rows: buffer.toString().split('\n').length - 1 });
-  } catch (err) {
-    console.error('Webhook error:', err);
-    res.status(500).json({ error: 'Failed to download or save CSV' });
-  }
-});
-
-// Serve products.csv with CORS so the static site can fetch it
-app.get('/products.csv', (req, res) => {
-  const fs = require('fs');
-  if (!fs.existsSync(CSV_PATH)) {
-    res.status(404).set('Access-Control-Allow-Origin', '*').send('products.csv not yet loaded. Trigger a Sante CSV email or POST the CSV URL to /webhook.');
+  if (!GITHUB_TOKEN || !GITHUB_REPO) {
+    res.status(500).json({ error: 'GITHUB_TOKEN and GITHUB_REPO not configured' });
     return;
   }
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.sendFile(CSV_PATH);
+
+  try {
+    const buffer = await downloadCsv(csvUrl);
+    await pushCsvToGitHub(buffer);
+    const rows = buffer.toString().split('\n').length - 1;
+    res.status(200).json({ ok: true, rows, pushed: true });
+  } catch (err) {
+    console.error('Webhook error:', err);
+    res.status(500).json({ error: err.message || 'Failed to download or push CSV' });
+  }
 });
 
-ensureDataDir();
 app.listen(PORT, () => {
-  console.log(`Tagmaker CSV service listening on port ${PORT}; CSV path: ${CSV_PATH}`);
+  console.log(`Tagmaker CSV service listening on port ${PORT}; pushes to GitHub repo: ${GITHUB_REPO || '(not set)'}`);
 });
