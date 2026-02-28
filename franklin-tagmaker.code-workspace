@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../Downloads/ePOS_SDK_JavaScript_v2.27.0h"
+		},
+		{
+			"path": "../cityhive-integration-data"
+		}
+	],
+	"settings": {}
+}

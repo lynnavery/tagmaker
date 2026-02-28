@@ -2538,7 +2538,7 @@ function createPrintElement(elementData, product) {
 }
 
 // Dots per mm at 203 DPI (TM thermal printers)
-const PRINTER_DOTS_PER_MM = 8;
+const PRINTER_DOTS_PER_MM = 12;
 const DESIGN_PX_PER_MM = 96 / 25.4;
 
 function buildPrintHtmlForOneTag(template, product) {
@@ -2572,7 +2572,7 @@ function renderTagToCanvas(template, product, opts) {
     var hMm = template.height || 50;
     var designW = Math.round(wMm * DESIGN_PX_PER_MM);
     var designH = Math.round(hMm * DESIGN_PX_PER_MM);
-    // Always use full printer resolution (8 dots/mm) for output so physical size is correct.
+    // Always use full printer resolution (12 dots/mm) for output so physical size is correct.
     // Fast print stays faster via scale:1 and shorter delays; we no longer shrink the sent image.
     var outW = Math.floor(wMm * PRINTER_DOTS_PER_MM);
     var outH = Math.floor(hMm * PRINTER_DOTS_PER_MM);
