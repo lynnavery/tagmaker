@@ -1,0 +1,222 @@
+Delivered-To: info@608franklinwines.com
+Received: by 2002:a5d:5b8d:0:b0:439:b1d0:a5ef with SMTP id df13csp11377wrb;
+        Sat, 28 Feb 2026 11:06:17 -0800 (PST)
+X-Received: by 2002:a05:620a:318f:b0:8cb:66dc:9fcd with SMTP id af79cd13be357-8cbc8e0f8c5mr778307985a.56.1772305576698;
+        Sat, 28 Feb 2026 11:06:16 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772305576; cv=none;
+        d=google.com; s=arc-20240605;
+        b=DKp3hzzdXt+aCRecAZ+WbAvctp9AieNCSTiy/ZZFEbkxkx4OPM2gUigwvkb5KGxWyL
+         hKev64oEhcVD6F4nyL6Ri1nhdlPBVV0uhvn74G9Yu9+JZDCJyhRns8IcqTTFAorkzSu5
+         8m+5wuHjzm4l5dqfhfoqjUsq2ojLPFtUvjBU5tawkLf3svOmuO6sxQzk2iQMOxLhfrqJ
+         lt6Js1YW8ftUYQx32wb8RPr/jZN9J8QjplB3FJAjuQ06LhIZ/vbfxsvukoVkfpwvv8vx
+         wEMj046ipbf4ttPBZ89gSpTC+reRJKmrFlXkANdHUO+3CUvUCDNQ8x6pjTqSGk8t8EN1
+         e6jQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:mime-version:date:content-transfer-encoding:message-id
+         :subject:to:from:dkim-signature:dkim-signature;
+        bh=b1vmBFbU874xJrKbdrrMFokF39Msk/7kQrkuBeWfTb4=;
+        fh=zhneZxBkovpQ2bkCGGQFlBsEYXAuF9NxpVV3v5TdCog=;
+        b=GCfEhktdowOOcDEvYIyPzhfhKXOfNAENATLCGZ9lxy3tB3rjzaJ80n9FOmcV9dZUtZ
+         BFeYPefR26wiQPcwHww5IpIr3JC2HzhdMbwbUuF3R5jD/SECfX3IDFKRrJPex8C6V1bs
+         YI/kbdrT99HHYEzzATKKMya97ox0GEPDZIZ2L8uHF+DKujgmX0kZbdP/9e3/hB+zBjtu
+         mEHIlmatm+k9aNXQJ/mqCuyQi6cAtdq4t5Pg8OxxjH0ySznlSIRpE4SDIXLgkcQnXx5V
+         5HHv1F0+iGcGBNouZjcAR7RqGLujZa926K4jPQMj/ZFwemCZxpS7cCY8RpfQn+4535We
+         6NIA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@santehq.com header.s=resend header.b="FlhBtb/c";
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=F9zFsucd;
+       spf=pass (google.com: domain of 0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@bounces.santehq.com designates 54.240.9.3 as permitted sender) smtp.mailfrom=0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@bounces.santehq.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=santehq.com
+Return-Path: <0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@bounces.santehq.com>
+Received: from a9-3.smtp-out.amazonses.com (a9-3.smtp-out.amazonses.com. [54.240.9.3])
+        by mx.google.com with ESMTPS id af79cd13be357-8cbbf7494d2si876429585a.416.2026.02.28.11.06.16
+        for <info@608franklinwines.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 28 Feb 2026 11:06:16 -0800 (PST)
+Received-SPF: pass (google.com: domain of 0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@bounces.santehq.com designates 54.240.9.3 as permitted sender) client-ip=54.240.9.3;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@santehq.com header.s=resend header.b="FlhBtb/c";
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=F9zFsucd;
+       spf=pass (google.com: domain of 0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@bounces.santehq.com designates 54.240.9.3 as permitted sender) smtp.mailfrom=0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@bounces.santehq.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=santehq.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
+	d=santehq.com; t=1772305576;
+	h=From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=b1vmBFbU874xJrKbdrrMFokF39Msk/7kQrkuBeWfTb4=;
+	b=FlhBtb/cDGHWoZxYM4Ljqpa5W1Kjfu5X5uoOeF8FpqwoSr+9oCz2DGY+fqaqpB9M
+	P/yaH3Fq3mGVNJepc5h8hEhCXKI0sBmTPP4she7oaWbGW+CKF5mwMoR6SjFK65xqpGU
+	VF1YF3xiThdbVb7sLogVrZ1Y946W5Mjz1i4xGRWQ=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1772305576;
+	h=From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=b1vmBFbU874xJrKbdrrMFokF39Msk/7kQrkuBeWfTb4=;
+	b=F9zFsucdWX1W0td4EBYAXRq7Hn3fPRfRjpnSdtKCs1PF2u6cZFuCQJO1I8GsGdNC
+	pknHrXFQdhI7PnndXks3+9iiC8VFGRl6t8/xXfOTdWsDrbcIszPSkyg2n68U4B3u9bj
+	PCZj48fxyoTfaVfyy07QCXU+PkXmfbeQxrFXidlw=
+From: Franklin Wines & Spirits <receipt@santehq.com>
+To: info@608franklinwines.com
+Subject: Products CSV is ready
+Message-ID: <0100019ca5a4f00a-4095662b-8df3-4cf3-bae5-016171ab9f69-000000@email.amazonses.com>
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 28 Feb 2026 19:06:15 +0000
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Feedback-ID: :1.us-east-1.3NhbI5mO9JniTkakg2EanBsfThgOQ/lEOnTjPE4vP/iSVLFShaVrZvTm2FMstKApBN2FtQqTBAhZTfrksBHNhx8riuNEd/oXp4tjHNsQpWC5c1lnh9V1m293yU+GDLQ7MZdYjy2RLig8RFNsvRgIWuCbrMoR8sWLEM5LdX4d3wY=:1.us-east-1.epbACCJLarUaEI78XZoGREJ9LamRjxMH5pM2kZb64rA=:AmazonSES
+X-SES-Outgoing: 2026.02.28-54.240.9.3
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html dir=3D"ltr" =
+lang=3D"en"><head><link rel=3D"preload" as=3D"image" href=3D"https://sante.=
+nyc3.digitaloceanspaces.com/store-logos/mkfzmkfzd4fa-69595cb6ca4b9624360151=
+3b.png"/><meta content=3D"text/html; charset=3DUTF-8" =
+http-equiv=3D"Content-Type"/><meta name=3D"x-apple-disable-message-reformat=
+ting"/><!--$--></head><div style=3D"display:none;overflow:hidden;line-heigh=
+t:1px;opacity:0;max-height:0;max-width:0">Products CSV is ready to download=
+.<div>=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=
+=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=
+=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=
+=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=
+=C2=A0=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=
+=E2=80=8C=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=
+=E2=80=8B=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF=C2=A0=E2=80=8C=E2=80=8B=
+=E2=80=8D=E2=80=8E=E2=80=8F=EF=BB=BF</div></div><body =
+style=3D"background-color:#fff;font-family:-apple-system,BlinkMacSystemFont=
+,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;,Ubuntu,=
+sans-serif;margin:0;padding:0"><table align=3D"center" width=3D"100%" =
+border=3D"0" cellPadding=3D"0" cellSpacing=3D"0" role=3D"presentation" =
+style=3D"max-width:600px;background-color:#fff;border-radius:10px;width:100=
+%;margin:0 auto;border:1px solid #e5e5e5"><tbody><tr =
+style=3D"width:100%"><td><table align=3D"center" width=3D"100%" =
+border=3D"0" cellPadding=3D"0" cellSpacing=3D"0" role=3D"presentation" =
+style=3D"margin:40px auto;text-align:center"><tbody><tr><td><img =
+alt=3D"Franklin Wines &amp; Spirits" src=3D"https://sante.nyc3.=
+digitaloceanspaces.com/store-logos/mkfzmkfzd4fa-69595cb6ca4b96243601513b.=
+png" style=3D"display:block;outline:none;border:none;text-decoration:none;o=
+bject-fit:contain;margin:0 auto;max-height:100px" width=3D"250"/></td></tr>=
+</tbody></table><table align=3D"center" width=3D"100%" border=3D"0" =
+cellPadding=3D"0" cellSpacing=3D"0" role=3D"presentation" =
+style=3D"margin-top:0px;margin-bottom:20px"><tbody><tr><td><h1 =
+style=3D"color:#000;font-size:24px;margin:0;padding:0;text-align:center">Fr=
+anklin Wines &amp; Spirits</h1><p style=3D"font-size:15px;line-height:18px;=
+margin:6px auto 0;color:#a3a3a3;padding:0;max-width:600px;text-align:center=
+">Products CSV ready</p></td></tr></tbody></table><table align=3D"center" =
+width=3D"100%" border=3D"0" cellPadding=3D"0" cellSpacing=3D"0" =
+role=3D"presentation" style=3D"margin:40px auto;text-align:center"><tbody><=
+tr><td><a href=3D"https://sante.nyc3.digitaloceanspaces.=
+com/products-export/4v7uimm6oza53-4v7uimm6oza53.csv" =
+style=3D"color:#fff;text-decoration-line:none;font-size:16px;padding:24px =
+32px;background-color:#000;border-radius:0.7em;font-weight:700" =
+target=3D"_blank">Download</a></td></tr></tbody></table><table =
+align=3D"center" width=3D"100%" border=3D"0" cellPadding=3D"0" =
+cellSpacing=3D"0" role=3D"presentation" style=3D"padding:24px"><tbody><tr><=
+td><hr style=3D"width:100%;border:none;border-top:1px solid =
+#eaeaea;border-color:rgb(230, 235, 241);margin:0;padding:0"/><table =
+align=3D"center" width=3D"100%" border=3D"0" cellPadding=3D"0" =
+cellSpacing=3D"0" role=3D"presentation" style=3D"padding:24px =
+16px"><tbody><tr><td><p style=3D"font-size:12px;line-height:16px;margin:0;c=
+olor:#8898aa;padding:0">You are receiving this email because you requested =
+a data dump from <!-- -->Franklin Wines &amp; Spirits<!-- -->, which runs =
+their store on<!-- --> <a href=3D"https://www.santehq.com" =
+style=3D"color:#3c82f6;text-decoration-line:none;text-decoration:none;margi=
+n:0;padding:0" target=3D"_blank">Sant=C3=A9</a>.</p><p =
+style=3D"font-size:12px;line-height:16px;margin:0;color:#8898aa;padding:0;m=
+argin-top:20px">If you have any questions, contact us at<!-- --> <a =
+href=3D"mailto:support@santehq.com" style=3D"color:#3c82f6;text-decoration-=
+line:none;text-decoration:none;margin:0;padding:0" target=3D"_blank">suppor=
+t@santehq.com</a>.</p></td></tr></tbody></table></td></tr></tbody></table><=
+/td></tr></tbody></table><!--/$--></body></html>

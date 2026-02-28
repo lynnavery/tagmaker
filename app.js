@@ -34,10 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Load products from CSV
+// Load products from CSV (same-origin 'products.csv' when PRODUCTS_CSV_ORIGIN is empty, else from CSV service)
 async function loadProducts() {
+    const base = (typeof window !== 'undefined' && window.PRODUCTS_CSV_ORIGIN) ? window.PRODUCTS_CSV_ORIGIN : '';
+    const url = base ? base.replace(/\/$/, '') + '/products.csv' : 'products.csv';
     try {
-        const response = await fetch('products.csv');
+        const response = await fetch(url);
         const csvText = await response.text();
         products = Papa.parse(csvText, {
             header: true,
@@ -49,7 +51,7 @@ async function loadProducts() {
         console.log(`Loaded ${products.length} products`);
     } catch (error) {
         console.error('Error loading products:', error);
-        alert('Error loading products.csv. Please ensure the file is in the same directory.');
+        alert('Error loading products.csv. Please ensure the file is in the same directory or set PRODUCTS_CSV_ORIGIN.');
     }
 }
 
