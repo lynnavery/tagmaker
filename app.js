@@ -2537,9 +2537,11 @@ function createPrintElement(elementData, product) {
     return html;
 }
 
-// Dots per mm at 203 DPI (TM thermal printers)
-const PRINTER_DOTS_PER_MM = 12;
+// Dots per mm for output raster. 203 DPI = 203/25.4 ≈ 8. Matches TM thermal printer physical size.
+const PRINTER_DOTS_PER_MM = 203 / 25.4;
 const DESIGN_PX_PER_MM = 96 / 25.4;
+// Render at 2x then downscale to output for sharper text and barcodes.
+const RENDER_SCALE = 4;
 
 function buildPrintHtmlForOneTag(template, product) {
     var w = Math.round((template.width || 80) * DESIGN_PX_PER_MM);
@@ -2572,7 +2574,7 @@ function renderTagToCanvas(template, product, opts) {
     var hMm = template.height || 50;
     var designW = Math.round(wMm * DESIGN_PX_PER_MM);
     var designH = Math.round(hMm * DESIGN_PX_PER_MM);
-    // Always use full printer resolution (12 dots/mm) for output so physical size is correct.
+    // Output at PRINTER_DOTS_PER_MM so physical size is correct.
     // Fast print stays faster via scale:1 and shorter delays; we no longer shrink the sent image.
     var outW = Math.floor(wMm * PRINTER_DOTS_PER_MM);
     var outH = Math.floor(hMm * PRINTER_DOTS_PER_MM);
@@ -2594,7 +2596,7 @@ function renderTagToCanvas(template, product, opts) {
             if (!el) { cleanup(); reject(new Error('Raster: .print-tag not found')); return; }
             setTimeout(function () {
                 html2canvas(el, {
-                    scale: 1,
+                    scale: RENDER_SCALE,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
@@ -2613,6 +2615,7 @@ function renderTagToCanvas(template, product, opts) {
                     var fit = 0.98;
                     var dw = Math.max(1, Math.floor(outWidth * fit));
                     var dh = Math.max(1, Math.floor(outHeight * fit));
+                    // Downscale from high-res capture for sharper print
                     ctx.drawImage(capture, 0, 0, capture.width, capture.height, 0, 0, dw, dh);
                     resolve(out);
                 }).catch(function (err) {
