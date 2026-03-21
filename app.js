@@ -14,6 +14,8 @@ let resizeHandle = null;
 let elementIdCounter = 0;
 let selectedProducts = [];
 let productCopies = {};
+let lastSelectedProducts = [];
+let lastProductCopies = {};
 let searchHighlightedIndex = -1;
 
 // Initialize app
@@ -38,12 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadProducts() {
     try {
         const response = await fetch('products.csv');
+        const lastModified = response.headers.get('last-modified');
         const csvText = await response.text();
         products = Papa.parse(csvText, {
             header: true,
             skipEmptyLines: true
         }).data;
-        
+
+        if (lastModified) {
+            const date = new Date(lastModified);
+            const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const el = document.getElementById('csvDate');
+            if (el) el.textContent = `Products: ${formatted}`;
+        }
+
         // Populate preview dropdown
         populatePreviewDropdown();
         console.log(`Loaded ${products.length} products`);
@@ -139,7 +149,7 @@ function setupEventListeners() {
     // Print mode
     document.getElementById('searchBtn').addEventListener('click', performSearch);
     document.getElementById('productSearch').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') performSearch();
+        if (e.key === 'Enter' && !e.ctrlKey) performSearch();
     });
     document.getElementById('productSearch').addEventListener('keydown', (e) => {
         const resultsDiv = document.getElementById('searchResults');
@@ -155,7 +165,7 @@ function setupEventListeners() {
             if (n === 0) return;
             searchHighlightedIndex = searchHighlightedIndex <= 0 ? n - 1 : searchHighlightedIndex - 1;
             updateSearchHighlight();
-        } else if (e.key === 'Enter') {
+        } else if (e.key === 'Enter' && !e.ctrlKey) {
             if (n > 0 && searchHighlightedIndex >= 0 && items[searchHighlightedIndex]) {
                 e.preventDefault();
                 const productId = items[searchHighlightedIndex].dataset.id;
@@ -194,6 +204,7 @@ function setupEventListeners() {
         }
     });
     document.getElementById('clearSelectedBtn').addEventListener('click', clearSelectedProducts);
+    document.getElementById('restoreSelectionBtn').addEventListener('click', restoreLastSelection);
 
     // Printer method selection
     document.querySelectorAll('input[name="printMethod"]').forEach(radio => {
@@ -1828,6 +1839,14 @@ function clearSelectedProducts() {
     updateSelectedProductsList();
 }
 
+// Restore last printed selection
+function restoreLastSelection() {
+    if (lastSelectedProducts.length === 0) return;
+    selectedProducts = [...lastSelectedProducts];
+    productCopies = {...lastProductCopies};
+    updateSelectedProductsList();
+}
+
 // Print selected tags
 function printSelectedTags() {
     console.log('printSelectedTags called');
@@ -1863,6 +1882,13 @@ function printSelectedTags() {
         for (var i = 0; i < n; i++) toPrint.push(p);
     });
     
+    // Save selection for restore, then clear
+    lastSelectedProducts = [...selectedProducts];
+    lastProductCopies = {...productCopies};
+    clearSelectedProducts();
+    const restoreBtn = document.getElementById('restoreSelectionBtn');
+    if (restoreBtn) restoreBtn.disabled = false;
+
     try {
         if (printMethod === 'epson') {
             printToEpson(template, toPrint);

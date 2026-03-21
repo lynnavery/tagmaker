@@ -16,6 +16,7 @@
         <!-- Header -->
         <header class="header">
             <h1>Shelf Tag Designer</h1>
+            <span id="csvDate" class="csv-date"></span>
             <div class="header-actions">
                 <button type="button" id="headerMenuBtn" class="header-dropdown-btn" aria-haspopup="true" aria-expanded="false">File</button>
                 <div id="headerDropdownMenu" class="header-dropdown-menu" role="menu">
@@ -139,6 +140,7 @@
                         <div class="print-actions">
                             <div class="print-buttons">
                                 <button id="printSelectedBtn" class="btn btn-primary" disabled>Print</button>
+                                <button id="restoreSelectionBtn" class="btn btn-secondary" disabled title="Restore last printed selection"><i class="fa-solid fa-rotate-left"></i></button>
                                 <button id="clearSelectedBtn" class="btn btn-secondary" disabled><i class="fa-solid fa-x"></i></button>
                             </div>
                             <details class="printer-config-section">

@@ -8,8 +8,11 @@ var SANTE_FROM = 'receipt@santehq.com';
 var SANTE_SUBJECT = 'Products CSV is ready';
 var CSV_URL_REGEX = /https:\/\/sante\.nyc3\.digitaloceanspaces\.com\/products-export\/[^"'\s]+\.csv/gi;
 
+var SCRIPT_PROP_LAST_THREAD_ID = 'SANTE_LAST_PROCESSED_THREAD_ID';
+
 /**
- * Main entry: check Gmail for Sante CSV email and send CSV URL to webhook.
+ * Main entry: check Gmail for a *new* Sante CSV email and send CSV URL to webhook.
+ * Only runs the webhook when the latest Sante CSV email is different from the last one processed.
  * Call this from a time-driven trigger (e.g. every 5 minutes).
  */
 function checkSanteCsvAndNotify() {
@@ -25,6 +28,13 @@ function checkSanteCsvAndNotify() {
     return;
   }
 
+  var threadId = thread.getId();
+  var lastProcessedId = PropertiesService.getScriptProperties().getProperty(SCRIPT_PROP_LAST_THREAD_ID);
+  if (lastProcessedId === threadId) {
+    Logger.log('Latest Sante CSV email already processed (same thread). Skipping.');
+    return;
+  }
+
   var csvUrl = extractCsvUrlFromThread(thread);
   if (!csvUrl) {
     Logger.log('No CSV URL found in the latest Sante CSV email.');
@@ -33,6 +43,7 @@ function checkSanteCsvAndNotify() {
 
   var result = postCsvUrlToWebhook(webhookUrl, csvUrl);
   if (result.success) {
+    PropertiesService.getScriptProperties().setProperty(SCRIPT_PROP_LAST_THREAD_ID, threadId);
     Logger.log('Sent CSV URL to webhook: ' + csvUrl);
   } else {
     Logger.log('Failed to POST to webhook: ' + result.error);

@@ -41,7 +41,7 @@ Save. Close project settings.
    - **Interval:** Every 5 minutes (or every hour)
 3. Save. Approve the permission if asked.
 
-After this, the script will run every 5 minutes (or your chosen interval), look for the latest Sante CSV email, extract the CSV URL, and POST it to your webhook.
+After this, the script will run every 5 minutes (or your chosen interval). It **only acts when there is a new email from Sante**: it looks for the latest Sante CSV email, and if that email is different from the last one already processed, it extracts the CSV URL and POSTs it to your webhook. If the latest Sante email is the same as before, it does nothing (no duplicate webhook calls).
 
 ## 5. Point Sante to this Gmail
 
