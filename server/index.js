@@ -22,11 +22,17 @@ function isValidCsvUrl(url) {
 }
 
 function downloadCsv(url) {
+  console.log('downloadCsv: requesting', url);
   return new Promise((resolve, reject) => {
     const lib = url.startsWith('https') ? https : http;
     lib.get(url, (res) => {
       if (res.statusCode !== 200) {
-        reject(new Error(`HTTP ${res.statusCode}`));
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => {
+          console.log('downloadCsv: non-200 body:', Buffer.concat(chunks).toString().slice(0, 500));
+          reject(new Error(`HTTP ${res.statusCode}`));
+        });
         return;
       }
       const chunks = [];
