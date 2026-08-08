@@ -30,7 +30,14 @@ function downloadCsv(url) {
     const lib = url.startsWith('https') ? https : http;
     lib.get(url, (res) => {
       if (res.statusCode !== 200) {
-        reject(new Error(`HTTP ${res.statusCode}`));
+        const dateParam = (url.match(/X-Amz-Date=([^&]+)/) || [])[1];
+        console.log('downloadCsv: non-200, status=', res.statusCode, 'X-Amz-Date=', dateParam);
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => {
+          console.log('downloadCsv: error body:', Buffer.concat(chunks).toString().slice(0, 400));
+          reject(new Error(`HTTP ${res.statusCode}`));
+        });
         return;
       }
       const chunks = [];
