@@ -18,21 +18,19 @@ app.use(express.json());
 function isValidCsvUrl(url) {
   if (!url || typeof url !== 'string') return false;
   const u = url.trim();
-  return u.startsWith(SANTE_CSV_PREFIX) && u.endsWith('.csv');
+  if (!u.startsWith(SANTE_CSV_PREFIX)) return false;
+  // Sante's CSV links are presigned (query string after the .csv path), so only
+  // the path portion is required to end in .csv, not the whole URL.
+  const pathOnly = u.split('?')[0];
+  return pathOnly.endsWith('.csv');
 }
 
 function downloadCsv(url) {
-  console.log('downloadCsv: requesting', url);
   return new Promise((resolve, reject) => {
     const lib = url.startsWith('https') ? https : http;
     lib.get(url, (res) => {
       if (res.statusCode !== 200) {
-        const chunks = [];
-        res.on('data', (chunk) => chunks.push(chunk));
-        res.on('end', () => {
-          console.log('downloadCsv: non-200 body:', Buffer.concat(chunks).toString().slice(0, 500));
-          reject(new Error(`HTTP ${res.statusCode}`));
-        });
+        reject(new Error(`HTTP ${res.statusCode}`));
         return;
       }
       const chunks = [];
@@ -97,7 +95,6 @@ async function handleWebhook(req, res) {
   }
 
   const csvUrl = req.body && (req.body.csv_url || req.body.csvUrl);
-  console.log('handleWebhook: received csv_url =', JSON.stringify(csvUrl), 'valid =', isValidCsvUrl(csvUrl));
   if (!isValidCsvUrl(csvUrl)) {
     res.status(400).json({ error: 'Missing or invalid csv_url' });
     return;

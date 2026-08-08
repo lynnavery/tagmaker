@@ -67,7 +67,25 @@ function extractCsvUrlFromThread(thread) {
   var html = msg.getBody();
   if (!html) return null;
   var match = html.match(CSV_URL_REGEX);
-  return match ? match[0] : null;
+  return match ? decodeHtmlEntities(match[0]) : null;
+}
+
+// Sante's presigned CSV URLs carry a query string (X-Amz-Signature=...) joined
+// by "&", which shows up HTML-escaped (sometimes double-escaped, "&amp;amp;")
+// in the raw email body. Undo that before using the URL, or the signature
+// breaks and the download gets rejected with 400.
+function decodeHtmlEntities(str) {
+  var prev;
+  do {
+    prev = str;
+    str = str
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+  } while (str !== prev);
+  return str;
 }
 
 function postCsvUrlToWebhook(webhookUrl, csvUrl) {
