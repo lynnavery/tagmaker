@@ -6,7 +6,13 @@
 
 var SANTE_FROM = 'receipt@santehq.com';
 var SANTE_SUBJECT = 'Products CSV is ready';
-var CSV_URL_REGEX = /https:\/\/sante\.nyc3\.digitaloceanspaces\.com\/products-export\/[^"'\s]+\.csv/gi;
+// Note: this intentionally does NOT anchor on a trailing ".csv" - Sante's
+// presigned URLs have a query string after the .csv path (see
+// decodeHtmlEntities below), and anchoring on ".csv" as the literal end of
+// the match would truncate whatever comes after the last ".csv" occurrence
+// in the URL (e.g. a trailing %22 in a response-content-disposition param),
+// corrupting the AWS signature and causing SignatureDoesNotMatch.
+var CSV_URL_REGEX = /https:\/\/sante\.nyc3\.digitaloceanspaces\.com\/products-export\/[^"'\s]+/gi;
 
 var SCRIPT_PROP_LAST_THREAD_ID = 'SANTE_LAST_PROCESSED_THREAD_ID';
 
@@ -67,13 +73,19 @@ function extractCsvUrlFromThread(thread) {
   var html = msg.getBody();
   if (!html) return null;
   var match = html.match(CSV_URL_REGEX);
-  return match ? decodeHtmlEntities(match[0]) : null;
+  if (!match) return null;
+  var url = decodeHtmlEntities(match[0]);
+  // Sanity check: the path portion (before any query string) should be a .csv
+  // file. Catches cases where the regex grabbed something unexpected.
+  var pathOnly = url.split('?')[0];
+  if (pathOnly.slice(-4).toLowerCase() !== '.csv') return null;
+  return url;
 }
 
 // Sante's presigned CSV URLs carry a query string (X-Amz-Signature=...) joined
-// by "&", which shows up HTML-escaped (sometimes double-escaped, "&amp;amp;")
-// in the raw email body. Undo that before using the URL, or the signature
-// breaks and the download gets rejected with 400.
+// by "&", which shows up HTML-escaped as "&amp;" in the raw email body. Undo
+// that before using the URL, or the signature breaks and the download gets
+// rejected (SignatureDoesNotMatch / anonymous-request errors from Spaces).
 function decodeHtmlEntities(str) {
   var prev;
   do {

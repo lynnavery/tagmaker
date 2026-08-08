@@ -30,13 +30,7 @@ function downloadCsv(url) {
     const lib = url.startsWith('https') ? https : http;
     lib.get(url, (res) => {
       if (res.statusCode !== 200) {
-        console.log('downloadCsv: non-200, status=', res.statusCode, 'full url=', url);
-        const chunks = [];
-        res.on('data', (chunk) => chunks.push(chunk));
-        res.on('end', () => {
-          console.log('downloadCsv: error body:', Buffer.concat(chunks).toString().slice(0, 400));
-          reject(new Error(`HTTP ${res.statusCode}`));
-        });
+        reject(new Error(`HTTP ${res.statusCode}`));
         return;
       }
       const chunks = [];
