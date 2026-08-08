@@ -97,6 +97,7 @@ async function handleWebhook(req, res) {
   }
 
   const csvUrl = req.body && (req.body.csv_url || req.body.csvUrl);
+  console.log('handleWebhook: received csv_url =', JSON.stringify(csvUrl), 'valid =', isValidCsvUrl(csvUrl));
   if (!isValidCsvUrl(csvUrl)) {
     res.status(400).json({ error: 'Missing or invalid csv_url' });
     return;
