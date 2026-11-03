@@ -4,7 +4,7 @@
   "description": "Webhook receiver and products.csv server for Tagmaker",
   "main": "index.js",
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "scripts": {
     "start": "node index.js"

@@ -64,7 +64,7 @@ Sante POS → Gmail → Apps Script → Webhook Service → GitHub → DigitalOc
 
 Deployed on DigitalOcean App Platform as two components:
 - **Static Site** — serves `index.html`, `app.js`, `styles.css`, `products.csv`
-- **Web Service** — runs `server/index.js` (Node ≥18)
+- **Web Service** — runs `server/index.js` (Node 22.x)
 
 See `DEPLOY_DIGITALOCEAN.md` for full setup. Gmail automation setup is in `GMAIL_APPS_SCRIPT_SETUP.md`.
 
